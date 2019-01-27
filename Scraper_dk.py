@@ -1,35 +1,73 @@
+import requests
+from lxml import html
 
-from selenium import webdriver
-from selenium.webdriver.common.by import By
+class Scrape:
+  api_url = 'https://oasm.dfsa.dk/Reserved/SearchSSS.aspx'
+  page_count = 4
 
-import time
+  def scrape_details(self, details_urls):
+    for link in details_urls:
+      response = requests.get(link) #get page data from server, block redirects
+      sourceCode = response.text #get string of source code from response
+      htmlElem = html.fromstring(sourceCode) #make HTML element object
 
-# constants for the app
-site_url = 'https://oasm.dfsa.dk/uk/searchresult.aspx?t=shortselling'
-download_path = './stg_rsi_hu'
-chromedriver_path = "E:/Utilities/chromedriver.exe"
+      scraped_data = {}
 
-# set up chrome options
-chromeOptions = webdriver.ChromeOptions()
-prefs = {"download.default_directory" : download_path}
-chromeOptions.add_experimental_option("prefs",prefs)
+      valid_labels = [
+        'ID',
+        'Position date',
+        'Type',
+        'Date of previous notification',
+        'Previous message',
+        'Made public',
+        'Registration',
+        'Company',
+        'CVR-no',
+        'ISIN',
+        'Shortseller',
+      ]
 
-driver = webdriver.Chrome(executable_path=chromedriver_path, options=chromeOptions)
-driver.implicitly_wait(30)
+      for valid_label in valid_labels:
+        label = htmlElem.xpath('//div[@class="group"]//div[@class="label" and contains(text(), "%s")]/text()' % valid_label)
+        data = htmlElem.xpath('//div[@class="group"]//div[@class="label" and contains(text(), "%s")]/following-sibling::div[1]/text()' % valid_label)
+        if len(label) > 0 and len(data) > 0:
+          scraped_data[valid_label] = data[0]
+        else:
+          scraped_data[valid_label] = '-'
 
-# Open the website
-driver.get(site_url)
+      print (scraped_data)
 
-print ('site is loading...')
+  def run(self):
+    for page_index in range(self.page_count):
+      api_params = {
+        't': 'shortselling',
+        'ps': 10,
+        'p': page_index,
+        'publication': '(pubafter:2017/2/01 and pubbefore:2019/2/01)',
+      }
 
-acceptBtns = driver.find_elements_by_xpath("//input[@id='acceptdisclaimer']")
-if len(acceptBtns) > 0:
-    acceptBtns[0].send_keys("\n")
-    driver.implicitly_wait(30)
+      response = requests.get(url=self.api_url, params=api_params)
 
-downloadBtns = driver.find_elements_by_xpath("//input[@type='button' and @value='Export']")
-if len(downloadBtns) > 0:
-    downloadBtns[0].send_keys("\n")
+      status = response.status_code
 
+      if status == 200:
+        parsed_json = response.json()
 
+        result = parsed_json['ResultSet']
 
+        details_urls = []
+        for data in result:
+          fields = data['Fields']
+
+          for field in fields:
+            if field['FieldName'] == 'showurlda':
+              details_url = field['Value']
+              details_urls.append(details_url)
+            elif field['FieldName'] == 'title':
+              details_title = field['Value']
+              print(details_title)
+          
+        self.scrape_details(details_urls)
+
+task = Scrape()
+task.run()
