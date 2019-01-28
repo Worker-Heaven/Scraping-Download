@@ -11,7 +11,7 @@ driver.get(site_url)
 
 page = lxml.html.fromstring(driver.page_source)
 
-page_name = page.xpath('//h1[@itemprop="name"]/text()')[0]
+page_name = driver.find_elements_by_xpath('//h1[@itemprop="name"]')[0].text
 
 exchange = page.xpath('//div[@id="DropDownContainer"]//i[contains(@class, "btnTextDropDwn")]/text()')[0]
 
