@@ -5,8 +5,9 @@ from selenium.webdriver.common.by import By
 import time
 import os
 import csv
-
 import configparser
+
+import xlrd 
 
 class Scrape:
   site_url = 'https://kozzetetelek.mnb.hu/en/short_selling/lekerdezo'
@@ -50,13 +51,10 @@ class Scrape:
     return seconds
 
   def handle_csv(self):
-    with open(self.download_path, errors='ignore') as csv_file:
-      csv_reader = csv.reader(csv_file, delimiter=',')
-      print ('csv reader', csv_reader)
+    wb = xlrd.open_workbook(self.download_path) 
+    sheet = wb.sheet_by_index(0)
 
-      for row in csv_reader:
-        print(row)
-
+    print (sheet.cell_value(0, 0))
   def run(self):
     self.read_config()
     self.load_chrome_driver()
