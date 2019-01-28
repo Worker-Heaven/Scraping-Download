@@ -12,7 +12,7 @@ class Scrape:
   def scrape_details(self, url):
     self.driver.get(url)
 
-    page_name = driver.find_elements_by_xpath('//h1[@itemprop="name"]')[0].text
+    page_name = self.driver.find_elements_by_xpath('//h1[@itemprop="name"]')[0].text
 
     page = lxml.html.fromstring(self.driver.page_source)
 
