@@ -9,8 +9,6 @@ import configparser
 
 import xlrd 
 
-import mysql.connector
-
 class Scrape:
   site_url = 'https://kozzetetelek.mnb.hu/en/short_selling/lekerdezo'
   download_path = 'lekerdezo.xlsx'
