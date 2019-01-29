@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 import time
+import os
 
 # constants for the app
 site_url = 'http://www.szse.cn/disclosure/margin/margin/index.html'
@@ -28,5 +29,23 @@ if len(downloadBtns) > 0:
 driver.implicitly_wait(100)
 # driver.quit()
 
+cwd = os.getcwd()
+seconds = 0
+dl_wait = True
+
+while dl_wait and seconds < 20:
+    time.sleep(1)
+    dl_wait = False
+    files = os.listdir(cwd)
+
+    for fname in files:
+        if fname.endswith('.crdownload'):
+            dl_wait = True
+        else:
+            dl_wait = False
+
+        seconds += 1
+
+driver.quit()
 
 

@@ -9,9 +9,11 @@ import configparser
 
 import xlrd 
 
+import mysql.connector
+
 class Scrape:
   site_url = 'https://kozzetetelek.mnb.hu/en/short_selling/lekerdezo'
-  download_path = 'lekerdezo.csv'
+  download_path = 'lekerdezo.xlsx'
   chromedriver_path = ''
   time_limit = 20
 
@@ -54,7 +56,7 @@ class Scrape:
     wb = xlrd.open_workbook(self.download_path) 
     sheet = wb.sheet_by_index(0)
 
-    print (sheet.cell_value(0, 0))
+
   def run(self):
     self.read_config()
     self.load_chrome_driver()
@@ -75,7 +77,9 @@ class Scrape:
 
     # NOTE: if download correctly
     if (seconds < self.time_limit):
-      self.handle_csv()
+      # self.handle_csv()
+      # os.remove(self.download_path)
+      self.driver.quit()
 
 task = Scrape()
-task.handle_csv()
+task.run()
