@@ -3,7 +3,7 @@ from lxml import html
 
 class Scrape:
   api_url = 'https://oasm.dfsa.dk/Reserved/SearchSSS.aspx'
-  page_count = 4
+  page_count = 10
 
   def scrape_details(self, details_urls):
     for link in details_urls:
